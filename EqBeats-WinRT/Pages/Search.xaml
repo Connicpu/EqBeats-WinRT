@@ -1,0 +1,34 @@
+﻿<Page
+    x:Class="EqBeats_WinRT.Pages.Search"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EqBeats_WinRT.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Name="SearchTopBar" Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock>Search type</TextBlock>
+                <ComboBox SelectionChanged="SearchModeChanged">
+                    <ComboBoxItem>Tracks</ComboBoxItem>
+                    <ComboBoxItem>Artists</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+            <TextBlock Grid.Column="2" FontSize="36" Margin="10">
+                Searching for "<Run Text="{Binding Path=SearchQuery.CurrentQuery}" />"
+            </TextBlock>
+        </Grid>
+    </Grid>
+</Page>
