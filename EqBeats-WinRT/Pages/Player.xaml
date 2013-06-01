@@ -8,6 +8,13 @@
     mc:Ignorable="d">
 
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
-
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1" Background="DarkGray">
+            <MediaElement Name="MediaPlayer" AudioCategory="BackgroundCapableMedia" AudioDeviceType="Multimedia" CurrentStateChanged="PlayerStateChanged" />
+        </Grid>
     </Grid>
 </Page>

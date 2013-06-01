@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using EqBeats_WinRT.Models;
+using EqBeats_WinRT.Pages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Windows.Foundation;
@@ -139,7 +140,10 @@ namespace EqBeats_WinRT.Controls {
 
         private void SearchResultClicked(object sender, ItemClickEventArgs e) {
             if (SearchType == SearchMode.Track) {
-
+                var nowPlaying = State.AppState.NowPlaying;
+                nowPlaying.TrackList = ((Array)ResultView.ItemsSource).Cast<Track>().ToArray();
+                nowPlaying.CurrentSong = Array.IndexOf(State.AppState.NowPlaying.TrackList, (Track)e.ClickedItem);
+                ((Frame)Window.Current.Content).Navigate(typeof(Player));
             } else {
 
             }

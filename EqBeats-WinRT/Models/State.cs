@@ -13,7 +13,7 @@ using System.Linq;
 namespace EqBeats_WinRT.Models {
     [JsonObject(MemberSerialization.OptIn)]
     public class State : INotifyPropertyChanged {
-        private const int MODEL_EDITION = 2;
+        private const int MODEL_EDITION = 3;
         [JsonProperty("modelEdition")]
         public int ModelEdition;
         public static State AppState { get; private set; }
@@ -21,7 +21,7 @@ namespace EqBeats_WinRT.Models {
 
         public State(int? modelEdition = null) {
             if (modelEdition != null) {
-                ModelEdition = (int) modelEdition;
+                ModelEdition = (int)modelEdition;
             } else {
                 ModelEdition = MODEL_EDITION;
             }
@@ -31,6 +31,7 @@ namespace EqBeats_WinRT.Models {
         public Type CurrentPageType = typeof(Home);
 
         private SearchQueryModel _searchQuery = new SearchQueryModel();
+
         [JsonProperty]
         public SearchQueryModel SearchQuery {
             get { return _searchQuery; }
@@ -75,11 +76,42 @@ namespace EqBeats_WinRT.Models {
             }
         }
 
+        private NowPlayingState _nowPlaying = new NowPlayingState();
+
+        public NowPlayingState NowPlaying {
+            get { return _nowPlaying; }
+            set {
+                if (Equals(value, _nowPlaying)) return;
+                _nowPlaying = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [JsonObject(MemberSerialization.OptIn)]
         public class NowPlayingState : INotifyPropertyChanged {
+            private int _currentSong;
+            private Track[] _trackList;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public int CurrentSong { get; set; }
-            public Track[] TrackList { get; set; }
+            [JsonProperty]
+            public int CurrentSong {
+                get { return _currentSong; }
+                set {
+                    if (value == _currentSong) return;
+                    _currentSong = value;
+                    OnPropertyChanged1();
+                }
+            }
+
+            [JsonProperty]
+            public Track[] TrackList {
+                get { return _trackList; }
+                set {
+                    if (Equals(value, _trackList)) return;
+                    _trackList = value;
+                    OnPropertyChanged1();
+                }
+            }
 
             [NotifyPropertyChangedInvocator]
             protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null) {

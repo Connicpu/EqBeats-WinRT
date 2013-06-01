@@ -27,14 +27,14 @@
             </Border>
         </DataTemplate>
         <DataTemplate x:Name="UserTemplate">
-            <Border Width="200" Height="150" BorderBrush="BlueViolet">
+            <Border Width="250" Height="250" BorderBrush="BlueViolet" BorderThickness="3" Background="#F0F0F0">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="100" />
+                        <RowDefinition Height="150" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Image Source="{Binding Path=Avatar}" Stretch="Fill" />
+                    <Image Source="{Binding Path=Avatar}" Stretch="Uniform" />
                     <TextBlock Grid.Row="1" FontSize="24">
                         <Run Text="{Binding Path=Name}" />
                     </TextBlock>
@@ -47,7 +47,8 @@
         <GridView Name="ResultView"
                   SelectionMode="None"
                   IsSwipeEnabled="False"
-                  ItemClick="SearchResultClicked"/>
+                  ItemClick="SearchResultClicked"
+                  IsItemClickEnabled="True"/>
         <TextBlock FontSize="36" Foreground="DarkGray" Name="NoResults" Visibility="Collapsed">No results found</TextBlock>
     </Grid>
 </UserControl>
