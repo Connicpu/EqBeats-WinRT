@@ -5,6 +5,7 @@
     xmlns:local="using:EqBeats_WinRT.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:eqb="using:EqBeats_WinRT.Controls"
     mc:Ignorable="d">
 
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
@@ -21,7 +22,7 @@
             <Button Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <StackPanel Grid.Column="1">
                 <TextBlock>Search type</TextBlock>
-                <ComboBox SelectionChanged="SearchModeChanged">
+                <ComboBox SelectionChanged="SearchModeChanged" SelectedIndex="0" Name="SearchModeBox">
                     <ComboBoxItem>Tracks</ComboBoxItem>
                     <ComboBoxItem>Artists</ComboBoxItem>
                 </ComboBox>
@@ -30,5 +31,6 @@
                 Searching for "<Run Text="{Binding Path=SearchQuery.CurrentQuery}" />"
             </TextBlock>
         </Grid>
+        <eqb:SearchResults x:Name="SearchResultsControl" SearchQuery="{Binding Path=SearchQuery.SubmittedQuery}" Grid.Row="1" />
     </Grid>
 </Page>

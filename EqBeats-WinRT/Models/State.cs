@@ -13,13 +13,18 @@ using System.Linq;
 namespace EqBeats_WinRT.Models {
     [JsonObject(MemberSerialization.OptIn)]
     public class State : INotifyPropertyChanged {
-        private const int MODEL_EDITION = 1;
+        private const int MODEL_EDITION = 2;
+        [JsonProperty("modelEdition")]
         public int ModelEdition;
         public static State AppState { get; private set; }
         public static bool HasState { get { return AppState != null; } }
 
-        public State() {
-            ModelEdition = MODEL_EDITION;
+        public State(int? modelEdition = null) {
+            if (modelEdition != null) {
+                ModelEdition = (int) modelEdition;
+            } else {
+                ModelEdition = MODEL_EDITION;
+            }
         }
 
         [JsonProperty]
@@ -70,6 +75,19 @@ namespace EqBeats_WinRT.Models {
             }
         }
 
+        public class NowPlayingState : INotifyPropertyChanged {
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public int CurrentSong { get; set; }
+            public Track[] TrackList { get; set; }
+
+            [NotifyPropertyChangedInvocator]
+            protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null) {
+                var handler = PropertyChanged;
+                if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         public static async Task SaveState() {
             var stateContents = await JsonConvert.SerializeObjectAsync(AppState);
 
@@ -84,7 +102,7 @@ namespace EqBeats_WinRT.Models {
 
         public static async Task LoadState() {
             var storage = ApplicationData.Current.LocalFolder;
-            
+
             if ((await storage.GetFilesAsync()).All(item => item.Name != "state.json")) {
                 AppState = new State();
                 return;
@@ -100,7 +118,7 @@ namespace EqBeats_WinRT.Models {
 
             try {
                 AppState = await JsonConvert.DeserializeObjectAsync<State>(stateContents);
-                if (AppState.ModelEdition != MODEL_EDITION) {
+                if (AppState.ModelEdition < MODEL_EDITION) {
                     AppState = new State();
                 }
             } catch {
