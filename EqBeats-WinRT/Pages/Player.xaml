@@ -10,7 +10,7 @@
     <Page.Resources>
         <x:String x:Key="TrackFallbackImage">/Assets/null</x:String>
         <DataTemplate x:Name="TrackTemplate">
-            <Border Width="150" Height="150" BorderBrush="BlueViolet" BorderThickness="3" Background="#F7F7F7">
+            <Border Width="150" Height="150" BorderBrush="Gray" BorderThickness="3" Background="#F7F7F7">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="90" />

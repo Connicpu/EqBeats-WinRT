@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using EqBeats_WinRT.Common;
 using EqBeats_WinRT.Models;
 using Windows.Media;
@@ -69,6 +70,7 @@ namespace EqBeats_WinRT.Pages {
             UpdateScreenInfo(track);
         }
 
+        static readonly Regex NonAsciiRegex = new Regex(@"[^\x00-\xFF]+");
         public void UpdateScreenInfo(Track track) {
             TopPane.DataContext = track;
 
@@ -76,10 +78,13 @@ namespace EqBeats_WinRT.Pages {
 
             if (art != null) {
                 AlbumArt.Source = new BitmapImage(art);
+                AlbumArt.Visibility = Visibility.Visible;
+            } else {
+                AlbumArt.Visibility = Visibility.Collapsed;
             }
 
             MediaControl.ArtistName = track.Artist.Name;
-            MediaControl.TrackName = track.Title;
+            MediaControl.TrackName = NonAsciiRegex.Replace(track.Title, "");
         }
 
         private void Play() {
