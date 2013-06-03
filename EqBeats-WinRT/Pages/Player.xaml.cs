@@ -152,7 +152,7 @@ namespace EqBeats_WinRT.Pages {
         }
 
         private void PlaylistItemChanged(object sender, SelectionChangedEventArgs e) {
-            ((GridView)sender).ScrollIntoView(nowPlaying.PlayingTrack);
+            ((ListView)sender).ScrollIntoView(nowPlaying.PlayingTrack);
         }
 
         private void PreviousButtonClick(object sender, RoutedEventArgs e) {
