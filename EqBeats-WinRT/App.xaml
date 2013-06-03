@@ -7,15 +7,27 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
-                <!-- 
-                    Styles that define common aspects of the platform look and feel
-                    Required by Visual Studio project and item templates
-                 -->
                 <ResourceDictionary Source="Common/StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <common:SourceFallbackConverter x:Key="SourceFallbackConverter" />
+            <common:BooleanNegationConverter x:Key="BoolNegate" />
+            <common:TimespanToPercentage x:Key="TimeToPercent" />
+            <common:DurationExistsToVis x:Key="DurationExists" />
+            <common:DurationNotExistsToVis x:Key="DurationNotExists" />
+            <common:PercentToSongLength x:Key="PercentToSongLength" />
+            <Style TargetType="Frame" x:Key="MediaCapableFrameStyle">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Frame">
+                            <Grid>
+                                <MediaElement x:Name="MediaPlayer" AudioCategory="BackgroundCapableMedia" />
+                                <ContentPresenter />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

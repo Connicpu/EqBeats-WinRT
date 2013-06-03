@@ -4,6 +4,8 @@ using EqBeats_WinRT.Pages;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Search;
+using Windows.Media;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -48,16 +50,14 @@ namespace EqBeats_WinRT {
             deferral.Complete();
         }
 
-        private static async Task EnsureMainPageActivated(IActivatedEventArgs e) {
+        private async Task EnsureMainPageActivated(IActivatedEventArgs e) {
             if (e.PreviousExecutionState == ApplicationExecutionState.Terminated || !State.HasState) {
                 await State.LoadState();
             }
-            if (Window.Current.Content == null) {
-                var rootFrame = new Frame();
-                rootFrame.Navigated += (sender, args) => {
-                    State.AppState.CurrentPageType = args.SourcePageType;
-                };
-                rootFrame.Navigate(State.AppState.CurrentPageType);
+            var rootFrame = Window.Current.Content as Frame;
+            if (rootFrame == null) {
+                rootFrame = new Frame { Style = Resources["MediaCapableFrameStyle"] as Style };
+                rootFrame.Navigate(typeof(Home));
                 Window.Current.Content = rootFrame;
             }
             Window.Current.Activate();

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using EqBeats_WinRT.Common;
 using EqBeats_WinRT.Models;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Media;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -20,11 +15,12 @@ namespace EqBeats_WinRT.Pages {
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class Player {
-        private State.NowPlayingState nowPlaying;
+        private readonly State.NowPlayingState nowPlaying;
 
         public Player() {
+            nowPlaying = State.AppState.NowPlaying;
             InitializeComponent();
-
+            DataContext = State.AppState;
         }
 
         /// <summary>
@@ -33,44 +29,141 @@ namespace EqBeats_WinRT.Pages {
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
         /// property is typically used to configure the page.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
-            nowPlaying = State.AppState.NowPlaying;
+            MediaPlayer.CurrentStateChanged += PlayerStateChanged;
             if (MediaPlayer.CurrentState == MediaElementState.Stopped ||
                 MediaPlayer.CurrentState == MediaElementState.Closed) {
                 SetTrack(nowPlaying.TrackList[nowPlaying.CurrentSong]);
+            } else {
+                UpdateScreenInfo(nowPlaying.TrackList[nowPlaying.CurrentSong]);
             }
+
+            nowPlaying.NextSongReady += UpdateScreenInfo;
+        }
+
+        private void PlayerStateChanged(object sender, RoutedEventArgs routedEventArgs) {
+            switch (MediaPlayer.CurrentState) {
+                case MediaElementState.Playing:
+                    PlayPauseButton.IsEnabled = true;
+                    PlayPauseButton.Content = "\uE103";
+                    break;
+                case MediaElementState.Paused:
+                case MediaElementState.Stopped:
+                    PlayPauseButton.IsEnabled = true;
+                    PlayPauseButton.Content = "\uE102";
+                    break;
+                default:
+                    PlayPauseButton.IsEnabled = false;
+                    break;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e) {
+            nowPlaying.NextSongReady -= UpdateScreenInfo;
+            MediaPlayer.CurrentStateChanged -= PlayerStateChanged;
         }
 
         public void SetTrack(Track track) {
             MediaPlayer.Source = track.Download.Mp3;
-            MediaPlayer.PosterSource = new BitmapImage(track.Download.Art);
-            //MediaControl.AlbumArt = track.Download.Art;
-            MediaControl.ArtistName = track.Artist.Name;
-            MediaControl.TrackName = track.Title;
-
             MediaPlayer.Play();
+
+            UpdateScreenInfo(track);
         }
 
-        private void PlayerStateChanged(object sender, RoutedEventArgs e) {
-            switch (MediaPlayer.CurrentState) {
-                case MediaElementState.Buffering:
-                    MediaControl.IsPlaying = true;
-                    break;
-                case MediaElementState.Closed:
-                    MediaControl.IsPlaying = false;
-                    break;
-                case MediaElementState.Opening:
-                    MediaControl.IsPlaying = true;
-                    break;
-                case MediaElementState.Paused:
-                    MediaControl.IsPlaying = false;
-                    break;
-                case MediaElementState.Playing:
-                    MediaControl.IsPlaying = true;
-                    break;
-                case MediaElementState.Stopped:
-                    MediaControl.IsPlaying = false;
-                    break;
+        public void UpdateScreenInfo(Track track) {
+            TopPane.DataContext = track;
+
+            var art = track.Download.Art;
+
+            if (art != null) {
+                AlbumArt.Source = new BitmapImage(art);
             }
+
+            MediaControl.ArtistName = track.Artist.Name;
+            MediaControl.TrackName = track.Title;
+        }
+
+        private void Play() {
+            MediaPlayer.Play();
+            MediaControl.IsPlaying = true;
+        }
+
+        public void Stop() {
+            MediaPlayer.Stop();
+            MediaControl.IsPlaying = false;
+        }
+
+        public void Pause() {
+            MediaPlayer.Pause();
+            MediaControl.IsPlaying = false;
+        }
+
+        public MediaElement MediaPlayer {
+            get {
+                var player = Window.Current.FindMediaElement();
+
+                if (!State.MediaControlInitialized) {
+                    MediaControl.PlayPressed += (o, a) => Dispatcher.RunAsync(CoreDispatcherPriority.Normal, Play);
+                    MediaControl.StopPressed += (o, a) => Dispatcher.RunAsync(CoreDispatcherPriority.Normal, Stop);
+                    MediaControl.PausePressed += (o, a) => Dispatcher.RunAsync(CoreDispatcherPriority.Normal, Pause);
+                    MediaControl.NextTrackPressed += (o, a) =>
+                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, nowPlaying.NextTrack);
+                    MediaControl.PreviousTrackPressed += (o, a) =>
+                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, nowPlaying.PreviousTrack);
+                    MediaControl.PlayPauseTogglePressed += (o, a) => Dispatcher.RunAsync(CoreDispatcherPriority.Normal, delegate {
+                        switch (player.CurrentState) {
+                            case MediaElementState.Playing:
+                                Pause();
+                                break;
+                            case MediaElementState.Paused:
+                                Play();
+                                break;
+                        }
+                    });
+
+                    player.MediaEnded += delegate { nowPlaying.NextTrack(); };
+
+                    var positionBinding = new Binding {
+                        Source = nowPlaying,
+                        Path = new PropertyPath("SongPosition"),
+                        Mode = BindingMode.TwoWay
+                    };
+                    player.SetBinding(MediaElement.PositionProperty, positionBinding);
+
+                    State.PlayerUpdateTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(0.1) };
+                    State.PlayerUpdateTimer.Tick += delegate {
+                        nowPlaying.TrackDuration = player.NaturalDuration;
+                    };
+                    State.PlayerUpdateTimer.Start();
+
+                    State.MediaControlInitialized = true;
+                }
+
+                return player;
+            }
+        }
+
+        private void GoBack(object sender, RoutedEventArgs e) {
+            ((Frame)Window.Current.Content).Navigate(typeof(Home));
+        }
+
+        private void PlaylistItemChanged(object sender, SelectionChangedEventArgs e) {
+            ((GridView)sender).ScrollIntoView(nowPlaying.PlayingTrack);
+        }
+
+        private void PreviousButtonClick(object sender, RoutedEventArgs e) {
+            nowPlaying.PreviousTrack();
+        }
+
+        private void PlayPauseButtonClick(object sender, RoutedEventArgs e) {
+            if (MediaControl.IsPlaying) {
+                Pause();
+            } else {
+                Play();
+            }
+        }
+
+        private void NextButtonClick(object sender, RoutedEventArgs e) {
+            nowPlaying.NextTrack();
         }
     }
 }

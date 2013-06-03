@@ -106,10 +106,12 @@
     <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanNegationConverter.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Common\Helpers.cs" />
     <Compile Include="Common\LayoutAwarePage.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
     <Compile Include="Common\SourceFallbackConverter.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
+    <Compile Include="Common\TimespanToPercentage.cs" />
     <Compile Include="Controls\SearchResults.xaml.cs">
       <DependentUpon>SearchResults.xaml</DependentUpon>
     </Compile>

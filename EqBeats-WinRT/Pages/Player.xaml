@@ -7,14 +7,85 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <x:String x:Key="TrackFallbackImage">/Assets/null</x:String>
+        <DataTemplate x:Name="TrackTemplate">
+            <Border Width="150" Height="150" BorderBrush="BlueViolet" BorderThickness="3" Background="#F7F7F7">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="90" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid Background="#F0F0F0">
+                        <Image Source="{Binding Path=Download.Art, Converter={StaticResource SourceFallbackConverter}, 
+                                                ConverterParameter={StaticResource TrackFallbackImage}}" />
+                    </Grid>
+                    <TextBlock Grid.Row="1" TextWrapping="Wrap" FontSize="12">
+                        <Run Text="{Binding Path=Title}" FontSize="14" /> by 
+                        <Run Text="{Binding Path=Artist.Name}" />
+                    </TextBlock>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Name="TopPane">
+            <Button Click="GoBack" Style="{StaticResource BackButtonStyle}" Margin="5"/>
+            <TextBlock Margin="15" FontSize="20">
+                <Run FontSize="30" Text="{Binding Path=Title}" />
+                by <Run Text="{Binding Path=Artist.Name}" />
+            </TextBlock>
+        </StackPanel>
         <Grid Grid.Row="1" Background="DarkGray">
-            <MediaElement Name="MediaPlayer" AudioCategory="BackgroundCapableMedia" AudioDeviceType="Multimedia" CurrentStateChanged="PlayerStateChanged" />
+            <Image Name="AlbumArt" />
+        </Grid>
+        <Grid Grid.Row="2" DataContext="{Binding Path=NowPlaying}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Height="40">
+                    <Slider Minimum="0" Maximum="100" ThumbToolTipValueConverter="{StaticResource PercentToSongLength}"
+                            Value="{Binding Path=SongPosition, Mode=TwoWay, Converter={StaticResource TimeToPercent}}"
+                            Visibility="{Binding Path=TrackDuration, Converter={StaticResource DurationExists}}"/>
+                    <ProgressBar IsIndeterminate="True" 
+                                 Visibility="{Binding Path=TrackDuration, Converter={StaticResource DurationNotExists}}"/>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Button FontFamily="Segoe UI Symbol" FontSize="30" Grid.Column="1" Content="&#xE100;" 
+                            Name="PreviousButton" Click="PreviousButtonClick" />
+                    <Button FontFamily="Segoe UI Symbol" FontSize="30" Grid.Column="2" Content="&#xE102;" 
+                            Name="PlayPauseButton" Click="PlayPauseButtonClick" />
+                    <Button FontFamily="Segoe UI Symbol" FontSize="30" Grid.Column="3" Content="&#xE101;" 
+                            Name="NextButton" Click="NextButtonClick" />
+                </Grid>
+            </Grid>
+            <Grid Grid.Row="1" Height="200">
+                <GridView ItemsSource="{Binding Path=TrackList}"
+                          ItemTemplate="{StaticResource TrackTemplate}"
+                          SelectedIndex="{Binding Path=CurrentSong, Mode=TwoWay}"
+                          SelectionChanged="PlaylistItemChanged"/>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

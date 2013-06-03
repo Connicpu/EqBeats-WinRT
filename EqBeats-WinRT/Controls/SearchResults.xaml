@@ -9,16 +9,18 @@
     d:DesignWidth="400">
 
     <UserControl.Resources>
-        <x:String x:Key="TrackFallbackImage">/Assets/eqbeats.png</x:String>
+        <x:String x:Key="TrackFallbackImage">/Assets/null</x:String>
         <DataTemplate x:Name="TrackTemplate">
-            <Border Width="250" Height="250" BorderBrush="BlueViolet" BorderThickness="3" Background="#F0F0F0">
+            <Border Width="250" Height="250" BorderBrush="BlueViolet" BorderThickness="3" Background="#F7F7F7">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="150" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Image Source="{Binding Path=Download.Art, Converter={StaticResource SourceFallbackConverter}, ConverterParameter={StaticResource TrackFallbackImage}}" ImageFailed="TrackImageFailed" />
+                    <Grid Background="#F0F0F0">
+                        <Image Source="{Binding Path=Download.Art, Converter={StaticResource SourceFallbackConverter}, ConverterParameter={StaticResource TrackFallbackImage}}" />
+                    </Grid>
                     <TextBlock Grid.Row="1" TextWrapping="Wrap" FontSize="18">
                         <Run Text="{Binding Path=Title}" /> by 
                         <Run Text="{Binding Path=Artist.Name}" />

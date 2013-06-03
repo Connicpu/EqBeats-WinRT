@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
+            <Button Click="GoBack" Style="{StaticResource BackButtonStyle}"/>
             <StackPanel Grid.Column="1">
                 <TextBlock>Search type</TextBlock>
                 <ComboBox SelectionChanged="SearchModeChanged" SelectedIndex="0" Name="SearchModeBox">

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using EqBeats_WinRT.Models;
+using Newtonsoft.Json;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -28,7 +32,26 @@ namespace EqBeats_WinRT.Pages {
         /// </summary>
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
         /// property is typically used to configure the page.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs e) {
+        protected override async void OnNavigatedTo(NavigationEventArgs e) {
+            Featured.ItemsSource = await LoadTracks("http://eqbeats.org/tracks/featured/json");
+            Latest.ItemsSource = await LoadTracks("http://eqbeats.org/tracks/latest/json");
+            Random.ItemsSource = await LoadTracks("http://eqbeats.org/tracks/random/json");
+        }
+
+        private async Task<Track[]> LoadTracks(string endpoint) {
+            var request = WebRequest.CreateHttp(endpoint);
+            request.Accept = "application/json";
+            using (var response = await request.GetResponseAsync())
+            using (var responseStream = response.GetResponseStream())
+            using (var responseReader = new StreamReader(responseStream)) {
+                return await JsonConvert.DeserializeObjectAsync<Track[]>(await responseReader.ReadToEndAsync());
+            }
+        }
+
+        private void ItemClick(object sender, ItemClickEventArgs e) {
+            State.AppState.NowPlaying.TrackList = (Track[])((ListView)sender).ItemsSource;
+            State.AppState.NowPlaying.PlayingTrack = (Track)e.ClickedItem;
+            ((Frame)Window.Current.Content).Navigate(typeof(Player));
         }
     }
 }

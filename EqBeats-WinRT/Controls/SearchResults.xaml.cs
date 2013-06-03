@@ -27,6 +27,8 @@ namespace EqBeats_WinRT.Controls {
             InitializeComponent();
         }
 
+        private long loadId = 1;
+
         public static readonly DependencyProperty SearchQueryProperty =
             DependencyProperty.Register("SearchQuery", typeof(string), typeof(SearchResults),
             new PropertyMetadata(default(string), QueryChanged));
@@ -37,15 +39,17 @@ namespace EqBeats_WinRT.Controls {
 
             switch (control.SearchType) {
                 case SearchMode.Track:
-                    await control.SearchTracks(search);
+                    await (control.SearchTracks(search));
                     break;
                 case SearchMode.User:
-                    await control.SearchUsers(search);
+                    await (control.SearchUsers(search));
                     break;
             }
         }
 
         public async Task SearchTracks(string query) {
+            var currLoadId = ++loadId;
+
             BeginSearch();
 
             Track[] results;
@@ -62,10 +66,16 @@ namespace EqBeats_WinRT.Controls {
                 results = new Track[0];
             }
 
+            if (currLoadId != loadId) {
+                return;
+            }
+
             UpdateResults(results);
         }
 
         public async Task SearchUsers(string query) {
+            var currLoadId = ++loadId;
+
             BeginSearch();
 
             User[] results;
@@ -80,6 +90,10 @@ namespace EqBeats_WinRT.Controls {
                 }
             } catch {
                 results = new User[0];
+            }
+
+            if (currLoadId != loadId) {
+                return;
             }
 
             UpdateResults(results);
@@ -115,6 +129,7 @@ namespace EqBeats_WinRT.Controls {
 
         private static async void SearchTypeChanged(DependencyObject depObject, DependencyPropertyChangedEventArgs args) {
             var control = (SearchResults)depObject;
+
             switch ((SearchMode)args.NewValue) {
                 case SearchMode.Track:
                     control.ResultView.ItemsSource = new Track[0];
@@ -132,10 +147,6 @@ namespace EqBeats_WinRT.Controls {
         public SearchMode SearchType {
             get { return (SearchMode)GetValue(SearchTypeProperty); }
             set { SetValue(SearchTypeProperty, value); }
-        }
-
-        private void TrackImageFailed(object sender, ExceptionRoutedEventArgs e) {
-            ((Image)sender).Source = new BitmapImage(new Uri("/Assets/eqbeats.png", UriKind.Relative));
         }
 
         private void SearchResultClicked(object sender, ItemClickEventArgs e) {
